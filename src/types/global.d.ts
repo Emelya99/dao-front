@@ -1,9 +1,10 @@
+import type { Eip1193Provider } from 'viem'
 
 export {}; // ensure module scope
 
 declare global {
   interface Window {
-	ethereum?: any;
+    ethereum?: Eip1193Provider
   }
 }
 

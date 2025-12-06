@@ -119,6 +119,11 @@ pre {
    line-height: 25px;
 }
 
+/* Header styles */
+.header {
+  padding: 10px;
+}
+
 /* Dialog modal styles for proposal creation */
 .proposal-modal-overlay {
   position: fixed;
