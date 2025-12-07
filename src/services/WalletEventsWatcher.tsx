@@ -1,33 +1,53 @@
 import { useEffect } from 'react'
 import { useAccount, useBalance } from 'wagmi'
 import { useAccountStore } from '@/stores/accountStore'
+import { useTokenStore } from '@/stores/tokenStore'
 import { HOODI_CHAIN_ID } from '@/constants'
+import { CONTRACT_ADDRESSES, CONTRACTS } from '@/contracts'
 
 export const WalletEventsWatcher = () => {
   const { address, isConnected, chain } = useAccount()
-  const balanceQuery = useBalance({ address })
+
+  const nativeBalance = useBalance({ address })
+  const tokenBalance = useBalance({
+    address,
+    token: CONTRACT_ADDRESSES[CONTRACTS.TOKEN_CONTRACT] as `0x${string}`
+  })
 
   const setAddress = useAccountStore((s) => s.setAddress)
   const setBalance = useAccountStore((s) => s.setBalance)
+  const setSymbol = useAccountStore((s) => s.setSymbol)
   const setChain = useAccountStore((s) => s.setChain)
   const setWrongNetwork = useAccountStore((s) => s.setWrongNetwork)
-  const reset = useAccountStore((s) => s.reset)
+  const resetAccount = useAccountStore((s) => s.reset)
+
+  const setToken = useTokenStore((s) => s.setToken)
+  const resetToken = useTokenStore((s) => s.reset)
 
   // Account changed
   useEffect(() => {
     if (!isConnected || !address) {
-      reset()
+      resetAccount()
+      resetToken()
       return
     }
     setAddress(address)
   }, [isConnected, address])
 
-  // Balance changed
+  // Native balance changed
   useEffect(() => {
-    if (balanceQuery.data) {
-      setBalance(`${balanceQuery.data.formatted} ${balanceQuery.data.symbol}`)
+    if (nativeBalance.data) {
+      setBalance(nativeBalance.data.formatted)
+      setSymbol(nativeBalance.data.symbol)
     }
-  }, [balanceQuery.data])
+  }, [nativeBalance.data])
+
+  // Token balance changed
+  useEffect(() => {
+    if (tokenBalance.data) {
+      setToken(tokenBalance.data.formatted, tokenBalance.data.symbol)
+    }
+  }, [tokenBalance.data])
 
   // Chain changed
   useEffect(() => {
