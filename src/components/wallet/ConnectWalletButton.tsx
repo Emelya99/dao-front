@@ -1,15 +1,10 @@
-import { useConnect, useConnectors } from 'wagmi'
+import { useAppKit } from "@reown/appkit/react"
 
 const ConnectWalletButton = () => {
-  const { connect } = useConnect()
-  const connectors = useConnectors()
-
-  const metaMaskConnector = connectors.find((c) => c.name === 'MetaMask')
+  const { open } = useAppKit()
 
   return (
-    <button
-      onClick={() => metaMaskConnector && connect({ connector: metaMaskConnector })}
-    >
+    <button onClick={() => open()}>
       Connect Wallet
     </button>
   )
