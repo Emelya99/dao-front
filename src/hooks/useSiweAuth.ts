@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 import { useAuthStore } from '@/stores/authStore'
 import { fetchNonce, verifySiwe } from '@/services/apiAuth'
 import { SiweMessage } from 'siwe'
@@ -21,6 +21,7 @@ export function useSiweAuth() {
   const { signMessageAsync } = useSignMessage()
   const { disconnect } = useDisconnect()
   const { isAuthenticated, loading, setAuthenticated, setLoading, setError, reset } = useAuthStore()
+  const previousAddress = useRef<string | null>(null)
 
   const logout = useCallback(() => {
     reset()
@@ -127,9 +128,21 @@ export function useSiweAuth() {
 
   // logout on address change
   useEffect(() => {
-    if (address && isAuthenticated) {
+    if (!address) {
+      previousAddress.current = null
+      return
+    }
+
+    if (!previousAddress.current) {
+      previousAddress.current = address
+      return
+    }
+
+    if (previousAddress.current !== address) {
       logout()
     }
+
+    previousAddress.current = address
   }, [address])
 
   return { authenticate }
