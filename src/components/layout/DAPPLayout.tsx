@@ -1,51 +1,37 @@
-import { ReactNode, useEffect } from 'react'
+import { ReactNode } from 'react'
 import { useAccount } from 'wagmi'
 import { useWalletSync } from '@/hooks/useWalletSync'
 import { useSiweAuth } from '@/hooks/useSiweAuth'
 import { useAuthStore } from '@/stores/authStore'
 
-type Props = { children: ReactNode }
+type Props = {
+  children: ReactNode
+}
 
-export const DAPPLayout = ({ children }: Props) => {
+const DAPPLayout = ({ children }: Props) => {
   useWalletSync()
-
-  const { address, isConnected } = useAccount()
-  const { authenticate } = useSiweAuth()
-  const { isAuthenticated, loading, error, reset } = useAuthStore()
-
-  useEffect(() => {
-    if (!isConnected) {
-      reset()
-    }
-  }, [isConnected])
-
-  useEffect(() => {
-    if (!address) return
-
-    reset()
-  }, [address])
-
-  useEffect(() => {
-    if (!isConnected || loading || isAuthenticated) return
-
-    authenticate()
-  }, [isConnected, isAuthenticated, loading])
+  useSiweAuth()
+  
+  const { isConnected } = useAccount()
+  const { isAuthenticated, loading, error } = useAuthStore()
 
   if (!isConnected) {
-    return <p>Please connect your wallet</p>
+    return <div>Please connect your wallet</div>
   }
 
   if (loading) {
-    return <p>Authenticating...</p>
+    return <div>Authenticating...</div>
   }
 
   if (error) {
-    return <p style={{ color: 'red' }}>Error: {error}</p>
+    return <div>Error: {error}</div>
   }
 
   if (!isAuthenticated) {
-    return <p>Waiting for authentication...</p>
+    return <div>Waiting for authentication...</div>
   }
 
   return <>{children}</>
 }
+
+export default DAPPLayout

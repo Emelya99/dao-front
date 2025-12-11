@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 type AuthState = {
   isAuthenticated: boolean
@@ -18,20 +18,18 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       loading: false,
       error: null,
-
       setAuthenticated: (v) => set({ isAuthenticated: v }),
       setLoading: (v) => set({ loading: v }),
       setError: (msg) => set({ error: msg }),
-
-      reset: () =>
-        set({
-          isAuthenticated: false,
-          loading: false,
-          error: null
-        })
+      reset: () => set({
+        isAuthenticated: false,
+        loading: false,
+        error: null
+      }),
     }),
     {
-      name: 'auth-storage'
+      name: 'auth-session',
+      storage: createJSONStorage(() => sessionStorage)
     }
   )
 )
