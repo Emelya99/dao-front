@@ -17,7 +17,7 @@ export function usePendingTxWatcher() {
 
       for (const tx of txs) {
         try {
-          const receipt = await publicClient.getTransactionReceipt({
+          const receipt = await publicClient!.getTransactionReceipt({
             hash: tx.hash as `0x${string}`,
           })
 

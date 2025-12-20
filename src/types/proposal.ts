@@ -1,4 +1,4 @@
-import { TAddress, TWei, THex } from "@/types/web3"
+import { TAddress, TWei, THex, THash } from "@/types/web3"
 
 export type TProposalAction =
   | "NOOP"
@@ -17,4 +17,13 @@ export type TProposalFormState = {
   description: string
   actionType: TProposalAction
   params: TProposalExecutionData
+}
+
+export type TProposalPreview = {
+  id: number
+  creator: TAddress
+  description: string
+  proposalAddress: TAddress
+  txHash: THash
+  blockNumber: number
 }

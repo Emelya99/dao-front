@@ -2,16 +2,19 @@ import { useState } from "react"
 import CreateProposalButton from "@/components/proposals/CreateProposalButton"
 import Modal from "@/components/ui/Modal"
 import CreateProposalForm from "@/components/proposals/CreateProposalForm"
+import ProposalsList from "@/components/proposals/ProposalsList"
 
 function ProposalsSection() {
     const [isOpen, setIsOpen] = useState(false)
 
     return (
-        <section className="proposals-section">
+        <section className="proposals-section flex-column gap-8">
             <div className="flex-between-center">
-                <h2>Proposals</h2>
+                <h2 style={{padding: 0}}>Proposals</h2>
                 <CreateProposalButton onClick={() => setIsOpen(true)} />
             </div>
+
+            <ProposalsList />
             
             <Modal
                 isOpen={isOpen}

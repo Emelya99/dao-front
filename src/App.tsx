@@ -3,6 +3,7 @@ import Header from '@/components/layout/Header'
 import WalletInfo from '@/components/wallet/WalletInfo'
 import DAPPLayout from '@/components/layout/DAPPLayout'
 import ProposalsSection from '@/components/proposals/ProposalsSection'
+import { EventListener } from '@/components/EventListener'
 import { AppKitProvider } from '@/config'
 import { Toaster } from 'react-hot-toast'
 import { usePendingTxWatcher } from '@/hooks/usePendingTxWatcher'
@@ -20,6 +21,7 @@ function App() {
 
         <Header />
         <Toaster />
+        <EventListener />
 
         <DAPPLayout>
           <WalletInfo />
