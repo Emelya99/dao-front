@@ -32,6 +32,7 @@ export function EventListener() {
         const creator = (log as any).args?.creator
         const description = (log as any).args?.description
         const proposalAddress = (log as any).args?.proposalAddress
+        const deadline = (log as any).args?.deadline
         const txHash = log.transactionHash
 
         if (txHash) {
@@ -41,14 +42,18 @@ export function EventListener() {
           }
         }
 
-        if (id !== undefined && creator && description && proposalAddress && txHash) {
+        if (id !== undefined && creator && description && proposalAddress && deadline && txHash) {
           addProposal({
             id: Number(id),
             creator: creator as TAddress,
             description: description as string,
-            proposalAddress: proposalAddress as TAddress,
-            txHash: txHash,
-            blockNumber: Number(log.blockNumber),
+            proposalContract: proposalAddress as TAddress,
+            executed: false,
+            deadline: Number(deadline),
+            voteCountFor: 0,
+            voteCountAgainst: 0,
+            createdAt: new Date().toISOString(),
+            transactionHash: txHash
           })
 
           if (userAddress && creator.toLowerCase() === userAddress.toLowerCase()) {
