@@ -16,7 +16,7 @@ const errorMessages = {
 export function EventListener() {
   const contractInfo = getContractInfo(CONTRACTS.DAO_CONTRACT)
   const { address: userAddress } = useAccount()
-  const { addProposal } = useProposalStore()
+  const addProposal = useProposalStore((s) => s.addProposal)
 
   useWatchContractEvent({
     address: contractInfo.address as `0x${string}`,
@@ -32,7 +32,6 @@ export function EventListener() {
         const creator = (log as any).args?.creator
         const description = (log as any).args?.description
         const proposalAddress = (log as any).args?.proposalAddress
-        const deadline = (log as any).args?.deadline
         const txHash = log.transactionHash
 
         if (txHash) {
@@ -42,14 +41,14 @@ export function EventListener() {
           }
         }
 
-        if (id !== undefined && creator && description && proposalAddress && deadline && txHash) {
+        if (id !== undefined && creator && description && proposalAddress && txHash) {
           addProposal({
             id: Number(id),
             creator: creator as TAddress,
             description: description as string,
             proposalContract: proposalAddress as TAddress,
             executed: false,
-            deadline: Number(deadline),
+            deadline: 0,
             voteCountFor: 0,
             voteCountAgainst: 0,
             createdAt: new Date().toISOString(),

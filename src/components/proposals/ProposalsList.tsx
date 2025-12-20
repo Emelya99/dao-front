@@ -1,10 +1,14 @@
-import { useProposals } from "@/hooks/useProposals"
+import { useProposalsList } from "@/hooks/useProposalsList"
+import { useProposalStore } from "@/stores/proposalStore"
 import ProposalPreviewCard from "@/components/proposals/ProposalPreviewCard"
 
 function ProposalsList() {
-  const { proposals, loading } = useProposals()
+  const { error } = useProposalsList() // Only for initial load
+  const proposals = useProposalStore((s) => s.proposals) // Real-time updates
+  const loading = useProposalStore((s) => s.loading)
 
   if (loading) return <p>Loading proposals…</p>
+  if (error) return <p>Error: {error}</p>
   if (!proposals.length) return <p>No proposals yet</p>
 
   return (

@@ -3,8 +3,11 @@ import { fetchProposals } from '@/services/proposalApi'
 import { useProposalStore } from '@/stores/proposalStore'
 
 export function useProposalsList() {
-  const { proposals, setProposals, setLoading } = useProposalStore()
   const [error, setError] = useState<string | null>(null)
+  
+  const proposals = useProposalStore((s) => s.proposals)
+  const setProposals = useProposalStore((s) => s.setProposals)
+  const setLoading = useProposalStore((s) => s.setLoading)
 
   useEffect(() => {
     async function loadProposals() {
@@ -13,7 +16,8 @@ export function useProposalsList() {
       
       try {
         const data = await fetchProposals()
-        setProposals(data.proposals)
+        // Reverse to show newest first (backend returns oldest first)
+        setProposals(data.proposals.reverse())
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load proposals')
       } finally {
