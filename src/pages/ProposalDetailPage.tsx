@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useMemo } from 'react'
 import { useProposalDetail } from '@/hooks/proposals/useProposalDetail'
+import { useProposalResults } from '@/hooks/proposals/useProposalResults'
 import { useVote } from '@/hooks/proposals/useVote'
 import { useProposalVotedEvent } from '@/hooks/proposals/useProposalVotedEvent'
 import ProposalHeader from '@/components/proposals/ProposalHeader'
@@ -9,12 +10,14 @@ import ProposalDescription from '@/components/proposals/ProposalDescription'
 import ProposalMetadata from '@/components/proposals/ProposalMetadata'
 import ProposalVotingStats from '@/components/proposals/ProposalVotingStats'
 import ProposalActions from '@/components/proposals/ProposalActions'
+import ProposalVotesList from '@/components/proposals/ProposalVotesList'
 
 function ProposalDetailPage() {
   const { id } = useParams<{ id: string }>()
   const proposalId = Number(id)
   
   const { proposal, loading, error } = useProposalDetail(proposalId)
+  const { results, loading: resultsLoading, error: resultsError } = useProposalResults(proposalId)
   const { confirmVote } = useVote()
   
   // Memoize proposalContract to prevent event listener from restarting on every render
@@ -81,11 +84,11 @@ function ProposalDetailPage() {
         isExpired={isExpired}
       />
 
-      {/* Results Table Placeholder */}
-      <section className="proposal-section">
-        <h3>Votes List</h3>
-        <p className="placeholder-text">Votes table coming soon...</p>
-      </section>
+      <ProposalVotesList 
+        votes={results?.votes || []}
+        loading={resultsLoading}
+        error={resultsError}
+      />
     </div>
   )
 }

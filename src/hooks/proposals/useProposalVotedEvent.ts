@@ -77,3 +77,4 @@ export function useProposalVotedEvent({ proposalContract, proposalId, onVoteConf
   })
 }
 
+
