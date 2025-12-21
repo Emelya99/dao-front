@@ -1,32 +1,17 @@
 import { TProposalPreview } from "@/types/proposal"
 import { Link } from "react-router-dom"
-import { ETHERSCAN_BASE_URL } from "@/constants"
+import { getProposalDetailPath } from "@/constants/routes"
 import { useCountdown } from "@/hooks/useCountdown"
+import { getProposalStatus, formatTimeLeft } from "@/utils/proposalHelpers"
+import EtherscanLink from "@/components/ui/EtherscanLink"
 
 type Props = {
   proposal: TProposalPreview
 }
 
 function ProposalPreviewCard({ proposal }: Props) {
-  const timeLeft = useCountdown(proposal.deadline)
-  
-  const status = proposal.executed 
-    ? "Executed" 
-    : timeLeft.isExpired
-      ? "Ended" 
-      : "Active"
-
-  const formatTimeLeft = () => {
-    if (timeLeft.isExpired) return "Voting ended"
-    
-    const parts = []
-    if (timeLeft.days > 0) parts.push(`${timeLeft.days}d`)
-    if (timeLeft.hours > 0) parts.push(`${timeLeft.hours}h`)
-    if (timeLeft.minutes > 0) parts.push(`${timeLeft.minutes}m`)
-    if (timeLeft.seconds > 0 && timeLeft.days === 0) parts.push(`${timeLeft.seconds}s`)
-    
-    return parts.length > 0 ? parts.join(' ') : "Less than 1s"
-  }
+  const timeLeft = useCountdown(proposal.deadline ?? 0)
+  const status = getProposalStatus(proposal.executed, timeLeft.isExpired)
 
   return (
     <div className="proposal-card">
@@ -34,28 +19,16 @@ function ProposalPreviewCard({ proposal }: Props) {
       
       <div className="proposal-fields">
         <p><strong>Status:</strong> {status}</p>
-        <p><strong>Time Left:</strong> {formatTimeLeft()}</p>
+        <p><strong>Time Left:</strong> {formatTimeLeft(proposal.deadline, timeLeft)}</p>
         <p><strong>Description:</strong> {proposal.description}</p>
         <p><strong>Creator:</strong> {proposal.creator}</p>
         <p>
           <strong>Contract:</strong>{" "}
-          <a 
-            href={`${ETHERSCAN_BASE_URL}/address/${proposal.proposalContract}`} 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            {proposal.proposalContract}
-          </a>
+          <EtherscanLink type="address" value={proposal.proposalContract} />
         </p>
         <p>
           <strong>Transaction:</strong>{" "}
-          <a 
-            href={`${ETHERSCAN_BASE_URL}/tx/${proposal.transactionHash}`} 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            {proposal.transactionHash}
-          </a>
+          <EtherscanLink type="tx" value={proposal.transactionHash} />
         </p>
         <p><strong>Votes For:</strong> {proposal.voteCountFor}</p>
         <p><strong>Votes Against:</strong> {proposal.voteCountAgainst}</p>
@@ -64,7 +37,7 @@ function ProposalPreviewCard({ proposal }: Props) {
         <p><strong>Executed:</strong> {proposal.executed ? "Yes" : "No"}</p>
       </div>
 
-      <Link to={`/proposals/${proposal.id}`} className="btn">
+      <Link to={getProposalDetailPath(proposal.id)} className="btn">
         View Details →
       </Link>
     </div>

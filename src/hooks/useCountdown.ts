@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-type TimeLeft = {
+export type TimeLeft = {
   days: number
   hours: number
   minutes: number

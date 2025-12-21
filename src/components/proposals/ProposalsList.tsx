@@ -12,11 +12,13 @@ function ProposalsList() {
   if (!proposals.length) return <p>No proposals yet</p>
 
   return (
-    <div className="flex-column gap-8">
+    <ul className="flex-column gap-12">
       {proposals.map(p => (
-        <ProposalPreviewCard key={p.id} proposal={p} />
+        <li key={p.id}>
+          <ProposalPreviewCard proposal={p}/>
+        </li>
       ))}
-    </div>
+    </ul>
   )
 }
 
