@@ -38,11 +38,25 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
       : [proposal, ...state.proposals]
   })),
   
-  updateProposal: (id, updates) => set((state) => ({
-    proposals: state.proposals.map(p => 
+  updateProposal: (id, updates) => set((state) => {
+    // Update proposals list
+    const updatedProposals = state.proposals.map(p => 
       p.id === id ? { ...p, ...updates } : p
     )
-  })),
+    
+    // ALSO update detailCache if exists
+    const updatedDetailCache = state.detailCache[id]
+      ? {
+          ...state.detailCache,
+          [id]: { ...state.detailCache[id], ...updates }
+        }
+      : state.detailCache
+    
+    return { 
+      proposals: updatedProposals,
+      detailCache: updatedDetailCache
+    }
+  }),
   
   setProposalDetail: (id, detail) => set((state) => ({
     detailCache: { ...state.detailCache, [id]: detail }

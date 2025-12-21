@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { getProposalDetailPath } from "@/constants/routes"
 import { useCountdown } from "@/hooks/useCountdown"
 import { getProposalStatus, formatTimeLeft } from "@/utils/proposalHelpers"
+import { formatTokenAmount } from "@/utils/formatToken"
 import EtherscanLink from "@/components/ui/EtherscanLink"
 
 type Props = {
@@ -30,8 +31,8 @@ function ProposalPreviewCard({ proposal }: Props) {
           <strong>Transaction:</strong>{" "}
           <EtherscanLink type="tx" value={proposal.transactionHash} />
         </p>
-        <p><strong>Votes For:</strong> {proposal.voteCountFor}</p>
-        <p><strong>Votes Against:</strong> {proposal.voteCountAgainst}</p>
+        <p><strong>Votes For:</strong> {formatTokenAmount(proposal.voteCountFor)}</p>
+        <p><strong>Votes Against:</strong> {formatTokenAmount(proposal.voteCountAgainst)}</p>
         <p><strong>Deadline:</strong> {new Date(proposal.deadline * 1000).toLocaleString()}</p>
         <p><strong>Created:</strong> {new Date(proposal.createdAt).toLocaleString()}</p>
         <p><strong>Executed:</strong> {proposal.executed ? "Yes" : "No"}</p>

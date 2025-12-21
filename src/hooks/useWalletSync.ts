@@ -4,6 +4,7 @@ import { useAccountStore } from '@/stores/accountStore'
 import { useTokenStore } from '@/stores/tokenStore'
 import { CONTRACT_ADDRESSES, CONTRACTS } from '@/contracts'
 import { HOODI_CHAIN_ID } from '@/constants'
+import { TAddress } from '@/types/web3'
 
 export const useWalletSync = () => {
   const { address, isConnected, chain } = useAccount()
@@ -11,7 +12,7 @@ export const useWalletSync = () => {
   const nativeBalance = useBalance({ address })
   const tokenBalance = useBalance({
     address,
-    token: CONTRACT_ADDRESSES[CONTRACTS.TOKEN_CONTRACT] as `0x${string}`,
+    token: CONTRACT_ADDRESSES[CONTRACTS.TOKEN_CONTRACT] as TAddress,
   })
 
   const accountStore = useAccountStore()
@@ -38,7 +39,11 @@ export const useWalletSync = () => {
   // Token balance
   useEffect(() => {
     if (tokenBalance.data) {
-      tokenStore.setToken(tokenBalance.data.formatted, tokenBalance.data.symbol)
+      tokenStore.setToken(
+        tokenBalance.data.formatted, 
+        tokenBalance.data.symbol,
+        tokenBalance.data.decimals
+      )
     }
   }, [tokenBalance.data])
 

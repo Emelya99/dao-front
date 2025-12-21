@@ -13,8 +13,9 @@ export function formatTimeLeft(
   deadline: number | null, 
   timeLeft: TimeLeft
 ): string {
-  if (deadline === null) return 'Loading...'
-  if (timeLeft.isExpired) return 'Voting ended'
+  if (timeLeft.isExpired) {
+    return new Date(deadline! * 1000).toLocaleString()
+  }
   
   const parts = []
   if (timeLeft.days > 0) parts.push(`${timeLeft.days}d`)

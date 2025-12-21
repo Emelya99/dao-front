@@ -2,6 +2,7 @@ import { getTxs, removePendingTx, clearOldTxs } from "@/helpers/txStorage"
 import { usePublicClient } from "wagmi"
 import { useEffect } from "react"
 import toast from "react-hot-toast"
+import { THash } from "@/types/web3"
 
 export function usePendingTxWatcher() {
   const publicClient = usePublicClient()
@@ -18,7 +19,7 @@ export function usePendingTxWatcher() {
       for (const tx of txs) {
         try {
           const receipt = await publicClient!.getTransactionReceipt({
-            hash: tx.hash as `0x${string}`,
+            hash: tx.hash as THash,
           })
 
           if (receipt?.status === "success") {

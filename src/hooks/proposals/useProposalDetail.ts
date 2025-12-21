@@ -23,7 +23,7 @@ export function useProposalDetail(id: number) {
         const detail = await fetchProposalDetail(id)
         setProposalDetail(id, detail)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load proposal')
+        setError((err as any)?.response?.data?.message || 'Failed to load proposal')
       } finally {
         setLoading(false)
       }

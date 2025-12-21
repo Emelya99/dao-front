@@ -1,10 +1,9 @@
 import { useAccount, useWatchContractEvent, usePublicClient } from "wagmi"
 import toast from "react-hot-toast"
-import { CONTRACTS, getContractInfo } from "@/contracts"
+import { CONTRACTS, getContractInfo, getContractAbi } from "@/contracts"
 import { getTxs, removePendingTx } from "@/helpers/txStorage"
 import { useProposalStore } from "@/stores/proposalStore"
 import { TAddress } from "@/types/web3"
-import ProposalContractAbi from "@/contracts/abi/ProposalContractAbi.json"
 
 const events = {
   ProposalCreated: "ProposalCreated",
@@ -22,7 +21,7 @@ export function EventListener() {
   const updateProposal = useProposalStore((s) => s.updateProposal)
 
   useWatchContractEvent({
-    address: contractInfo.address as `0x${string}`,
+    address: contractInfo.address as TAddress,
     abi: contractInfo.abi,
     eventName: events.ProposalCreated,
     enabled: true,
@@ -65,7 +64,7 @@ export function EventListener() {
           if (publicClient) {
             publicClient.readContract({
               address: proposalAddress as TAddress,
-              abi: ProposalContractAbi,
+              abi: getContractAbi(CONTRACTS.PROPOSAL_CONTRACT),
               functionName: 'deadline',
             }).then((deadline) => {
               updateProposal(proposalId, { deadline: Number(deadline) })
