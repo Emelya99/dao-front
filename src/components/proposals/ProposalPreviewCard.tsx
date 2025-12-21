@@ -1,52 +1,73 @@
 import { TProposalPreview } from "@/types/proposal"
 import { Link } from "react-router-dom"
+import { ETHERSCAN_BASE_URL } from "@/constants"
+import { useCountdown } from "@/hooks/useCountdown"
 
 type Props = {
   proposal: TProposalPreview
 }
 
 function ProposalPreviewCard({ proposal }: Props) {
-  const totalVotes = proposal.voteCountFor + proposal.voteCountAgainst
-  const forPercentage = totalVotes > 0 
-    ? Math.round((proposal.voteCountFor / totalVotes) * 100) 
-    : 0
-
+  const timeLeft = useCountdown(proposal.deadline)
+  
   const status = proposal.executed 
     ? "Executed" 
-    : Date.now() / 1000 > proposal.deadline 
+    : timeLeft.isExpired
       ? "Ended" 
       : "Active"
 
+  const formatTimeLeft = () => {
+    if (timeLeft.isExpired) return "Voting ended"
+    
+    const parts = []
+    if (timeLeft.days > 0) parts.push(`${timeLeft.days}d`)
+    if (timeLeft.hours > 0) parts.push(`${timeLeft.hours}h`)
+    if (timeLeft.minutes > 0) parts.push(`${timeLeft.minutes}m`)
+    if (timeLeft.seconds > 0 && timeLeft.days === 0) parts.push(`${timeLeft.seconds}s`)
+    
+    return parts.length > 0 ? parts.join(' ') : "Less than 1s"
+  }
+
   return (
-    <Link to={`/proposals/${proposal.id}`} className="proposal-card">
-      <div className="flex-between-center">
-        <h4>Proposal #{proposal.id}</h4>
-        <span className={`status status-${status.toLowerCase()}`}>{status}</span>
-      </div>
+    <div className="proposal-card">
+      <h4>Proposal #{proposal.id}</h4>
       
-      <p>{proposal.description.length > 150 
-        ? proposal.description.slice(0, 150) + '...' 
-        : proposal.description}
-      </p>
-
-      <div className="proposal-votes">
-        <div className="votes-stats">
-          <span>For: {proposal.voteCountFor}</span>
-          <span>Against: {proposal.voteCountAgainst}</span>
-        </div>
-        <div className="progress-bar">
-          <div 
-            className="progress-bar-fill" 
-            style={{ width: `${forPercentage}%` }}
-          />
-        </div>
+      <div className="proposal-fields">
+        <p><strong>Status:</strong> {status}</p>
+        <p><strong>Time Left:</strong> {formatTimeLeft()}</p>
+        <p><strong>Description:</strong> {proposal.description}</p>
+        <p><strong>Creator:</strong> {proposal.creator}</p>
+        <p>
+          <strong>Contract:</strong>{" "}
+          <a 
+            href={`${ETHERSCAN_BASE_URL}/address/${proposal.proposalContract}`} 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+            {proposal.proposalContract}
+          </a>
+        </p>
+        <p>
+          <strong>Transaction:</strong>{" "}
+          <a 
+            href={`${ETHERSCAN_BASE_URL}/tx/${proposal.transactionHash}`} 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+            {proposal.transactionHash}
+          </a>
+        </p>
+        <p><strong>Votes For:</strong> {proposal.voteCountFor}</p>
+        <p><strong>Votes Against:</strong> {proposal.voteCountAgainst}</p>
+        <p><strong>Deadline:</strong> {new Date(proposal.deadline * 1000).toLocaleString()}</p>
+        <p><strong>Created:</strong> {new Date(proposal.createdAt).toLocaleString()}</p>
+        <p><strong>Executed:</strong> {proposal.executed ? "Yes" : "No"}</p>
       </div>
 
-      <div className="proposal-meta">
-        <span>Creator: {proposal.creator.slice(0, 6)}…{proposal.creator.slice(-4)}</span>
-        <span>Created: {new Date(proposal.createdAt).toLocaleDateString()}</span>
-      </div>
-    </Link>
+      <Link to={`/proposals/${proposal.id}`} className="btn">
+        View Details →
+      </Link>
+    </div>
   )
 }
 

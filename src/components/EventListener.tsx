@@ -1,9 +1,10 @@
-import { useAccount, useWatchContractEvent } from "wagmi"
+import { useAccount, useWatchContractEvent, usePublicClient } from "wagmi"
 import toast from "react-hot-toast"
 import { CONTRACTS, getContractInfo } from "@/contracts"
 import { getTxs, removePendingTx } from "@/helpers/txStorage"
 import { useProposalStore } from "@/stores/proposalStore"
 import { TAddress } from "@/types/web3"
+import ProposalContractAbi from "@/contracts/abi/ProposalContractAbi.json"
 
 const events = {
   ProposalCreated: "ProposalCreated",
@@ -16,7 +17,9 @@ const errorMessages = {
 export function EventListener() {
   const contractInfo = getContractInfo(CONTRACTS.DAO_CONTRACT)
   const { address: userAddress } = useAccount()
+  const publicClient = usePublicClient()
   const addProposal = useProposalStore((s) => s.addProposal)
+  const updateProposal = useProposalStore((s) => s.updateProposal)
 
   useWatchContractEvent({
     address: contractInfo.address as `0x${string}`,
@@ -42,8 +45,11 @@ export function EventListener() {
         }
 
         if (id !== undefined && creator && description && proposalAddress && txHash) {
+          const proposalId = Number(id)
+          
+          // Add proposal with temporary deadline
           addProposal({
-            id: Number(id),
+            id: proposalId,
             creator: creator as TAddress,
             description: description as string,
             proposalContract: proposalAddress as TAddress,
@@ -55,8 +61,21 @@ export function EventListener() {
             transactionHash: txHash
           })
 
+          // Read real deadline from proposal contract
+          if (publicClient) {
+            publicClient.readContract({
+              address: proposalAddress as TAddress,
+              abi: ProposalContractAbi,
+              functionName: 'deadline',
+            }).then((deadline) => {
+              updateProposal(proposalId, { deadline: Number(deadline) })
+            }).catch((err) => {
+              console.error('Failed to read deadline:', err)
+            })
+          }
+
           if (userAddress && creator.toLowerCase() === userAddress.toLowerCase()) {
-            toast.success(`Proposal #${Number(id)} created ✅`)
+            toast.success(`Proposal #${proposalId} created ✅`)
           }
         }
       }
