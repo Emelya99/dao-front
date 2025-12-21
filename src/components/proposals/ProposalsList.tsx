@@ -1,4 +1,4 @@
-import { useProposalsList } from "@/hooks/useProposalsList"
+import { useProposalsList } from "@/hooks/proposals/useProposalsList"
 import { useProposalStore } from "@/stores/proposalStore"
 import ProposalPreviewCard from "@/components/proposals/ProposalPreviewCard"
 

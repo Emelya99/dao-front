@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { TProposalAction } from "@/types/proposal"
-import { useCreateProposal } from "@/hooks/useCreateProposal"
+import { useCreateProposal } from "@/hooks/proposals/useCreateProposal"
 
 type Props = {
   onSuccess?: () => void
