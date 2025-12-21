@@ -1,5 +1,8 @@
+import { useEffect } from 'react'
 import { useCanVote } from '@/hooks/proposals/useCanVote'
 import { useVote } from '@/hooks/proposals/useVote'
+import { useCanExecute } from '@/hooks/proposals/useCanExecute'
+import { useExecute } from '@/hooks/proposals/useExecute'
 import { TProposalDetail } from '@/types/proposal'
 
 type Props = {
@@ -9,6 +12,7 @@ type Props = {
 
 function ProposalActions({ proposal, isExpired }: Props) {
   const { vote, isPending, isVoting, hasPendingVote, hasConfirmedVote } = useVote()
+  const { execute, isPending: isExecutePending, isExecuting, hasPendingExecution, hasConfirmedExecution, confirmExecution } = useExecute()
   const { canVote, reason: voteDisabledReason, loading: checkingVote } = useCanVote(proposal, {
     days: 0,
     hours: 0,
@@ -16,9 +20,12 @@ function ProposalActions({ proposal, isExpired }: Props) {
     seconds: 0,
     isExpired
   })
+  const { canExecute, reason: executeDisabledReason, loading: checkingExecute } = useCanExecute(proposal, isExpired)
 
   const isTransactionPending = isPending || isVoting || hasPendingVote(proposal.id)
   const shouldHideVoteButtons = hasConfirmedVote(proposal.id) || voteDisabledReason === 'You already voted'
+  const isExecuteTransactionPending = isExecutePending || isExecuting || hasPendingExecution(proposal.id)
+  const shouldHideExecuteButton = hasConfirmedExecution(proposal.id) || proposal.executed || !canExecute
 
   const handleVote = async (support: boolean) => {
     try {
@@ -31,6 +38,22 @@ function ProposalActions({ proposal, isExpired }: Props) {
       // Error already handled in useVote hook
     }
   }
+
+  const handleExecute = async () => {
+    try {
+      await execute({ proposalId: proposal.id })
+      // confirmExecution will be called when proposal.executed becomes true (via EventListener)
+    } catch (err) {
+      // Error already handled in useExecute hook
+    }
+  }
+
+  // Confirm execution when proposal.executed becomes true (event received via EventListener)
+  useEffect(() => {
+    if (proposal.executed && hasPendingExecution(proposal.id)) {
+      confirmExecution(proposal.id)
+    }
+  }, [proposal.executed, proposal.id, hasPendingExecution, confirmExecution])
 
   return (
     <section className="proposal-section">
@@ -68,11 +91,33 @@ function ProposalActions({ proposal, isExpired }: Props) {
         </>
       )}
       
-      <div className="action-buttons">
-        <button disabled>
-          Execute (Coming Soon)
-        </button>
-      </div>
+      {/* Execute button */}
+      {shouldHideExecuteButton ? (
+        proposal.executed ? (
+          <p className="vote-status-message">
+            Proposal already executed
+          </p>
+        ) : hasPendingExecution(proposal.id) ? (
+          <p className="vote-status-message">
+            Execution submitted, waiting for confirmation...
+          </p>
+        ) : null
+      ) : (
+        <>
+          {!canExecute && executeDisabledReason && (
+            <p className="vote-status-message">{executeDisabledReason}</p>
+          )}
+          
+          <div className="action-buttons">
+            <button 
+              disabled={!canExecute || checkingExecute || isExecuteTransactionPending}
+              onClick={handleExecute}
+            >
+              {isExecuteTransactionPending ? 'Executing...' : checkingExecute ? 'Checking...' : 'Execute Proposal'}
+            </button>
+          </div>
+        </>
+      )}
     </section>
   )
 }

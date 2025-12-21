@@ -7,10 +7,12 @@ import { TAddress } from "@/types/web3"
 
 const events = {
   ProposalCreated: "ProposalCreated",
+  ProposalExecuted: "ProposalExecuted",
 }
 
 const errorMessages = {
   ProposalCreated: "Error watching ProposalCreated event:",
+  ProposalExecuted: "Error watching ProposalExecuted event:",
 }
 
 export function EventListener() {
@@ -20,6 +22,7 @@ export function EventListener() {
   const addProposal = useProposalStore((s) => s.addProposal)
   const updateProposal = useProposalStore((s) => s.updateProposal)
 
+  // Listen to ProposalCreated events
   useWatchContractEvent({
     address: contractInfo.address as TAddress,
     abi: contractInfo.abi,
@@ -75,6 +78,42 @@ export function EventListener() {
 
           if (userAddress && creator.toLowerCase() === userAddress.toLowerCase()) {
             toast.success(`Proposal #${proposalId} created ✅`)
+          }
+        }
+      }
+    },
+  })
+
+  // Listen to ProposalExecuted events
+  useWatchContractEvent({
+    address: contractInfo.address as TAddress,
+    abi: contractInfo.abi,
+    eventName: events.ProposalExecuted,
+    enabled: true,
+    onError(err: Error) {
+      console.error(errorMessages.ProposalExecuted, err)
+    },
+    onLogs(logs) {
+      for (const log of logs) {
+        const id = (log as any).args?.id
+        const executor = (log as any).args?.executor
+        const txHash = log.transactionHash
+
+        if (txHash) {
+          const pendingTxs = getTxs()
+          if (pendingTxs.some((t) => t.hash === txHash)) {
+            removePendingTx(txHash)
+          }
+        }
+
+        if (id !== undefined && txHash) {
+          const proposalId = Number(id)
+          
+          // Update proposal status to executed
+          updateProposal(proposalId, { executed: true })
+
+          if (userAddress && executor && executor.toLowerCase() === userAddress.toLowerCase()) {
+            toast.success(`Proposal #${proposalId} executed ✅`)
           }
         }
       }

@@ -1,4 +1,5 @@
 import { http } from '@/services/http'
+import { handleApiError } from '@/services/errorHandler'
 import { TProposalPreview, TProposalDetail, TProposalResults } from '@/types/proposal'
 
 type ApiResponse<T> = {
@@ -21,35 +22,50 @@ type ProposalResultsData = {
 }
 
 export async function fetchProposals(): Promise<{ proposals: TProposalPreview[], count: number }> {
-  const response = await http.get<ApiResponse<ProposalsData>>('/proposals')
-  
-  if (response.data.status !== 'ok' || !response.data.data) {
-    throw new Error(response.data.message || 'Failed to fetch proposals')
-  }
-  
-  return {
-    proposals: response.data.data.proposals,
-    count: response.data.data.count
+  try {
+    const response = await http.get<ApiResponse<ProposalsData>>('/proposals')
+    
+    if (response.data.status !== 'ok' || !response.data.data) {
+      throw new Error(response.data.message || 'Failed to fetch proposals')
+    }
+    
+    return {
+      proposals: response.data.data.proposals,
+      count: response.data.data.count
+    }
+  } catch (err) {
+    handleApiError(err, 'Failed to fetch proposals')
+    throw err
   }
 }
 
 export async function fetchProposalDetail(id: number): Promise<TProposalDetail> {
-  const response = await http.get<ApiResponse<ProposalDetailData>>(`/proposals/${id}`)
-  
-  if (response.data.status !== 'ok' || !response.data.data) {
-    throw new Error(response.data.message || 'Failed to fetch proposal detail')
+  try {
+    const response = await http.get<ApiResponse<ProposalDetailData>>(`/proposals/${id}`)
+    
+    if (response.data.status !== 'ok' || !response.data.data) {
+      throw new Error(response.data.message || 'Failed to fetch proposal detail')
+    }
+    
+    return response.data.data.proposal
+  } catch (err) {
+    handleApiError(err, 'Failed to fetch proposal detail')
+    throw err
   }
-  
-  return response.data.data.proposal
 }
 
 export async function fetchProposalResults(id: number): Promise<TProposalResults> {
-  const response = await http.get<ApiResponse<ProposalResultsData>>(`/results/${id}`)
-  
-  if (response.data.status !== 'ok' || !response.data.data) {
-    throw new Error(response.data.message || 'Failed to fetch proposal results')
+  try {
+    const response = await http.get<ApiResponse<ProposalResultsData>>(`/results/${id}`)
+    
+    if (response.data.status !== 'ok' || !response.data.data) {
+      throw new Error(response.data.message || 'Failed to fetch proposal results')
+    }
+    
+    return response.data.data.results
+  } catch (err) {
+    handleApiError(err, 'Failed to fetch proposal results')
+    throw err
   }
-  
-  return response.data.data.results
 }
 
