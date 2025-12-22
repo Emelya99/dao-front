@@ -10,12 +10,13 @@ function CreateProposalForm({ onSuccess }: Props) {
     const [description, setDescription] = useState("")
     const [actionType, setActionType] = useState<TProposalAction>("NOOP")
     const [votingPeriodMinutes, setVotingPeriodMinutes] = useState<string>("")
+    const [minTokens, setMinTokens] = useState<string>("")
     const { createProposal } = useCreateProposal()
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
 
-        // Convert voting period from minutes to seconds (BigInt)
+        // Convert values based on action type
         let value = 0n
         if (actionType === "UPDATE_VOTING_PERIOD" && votingPeriodMinutes) {
             const minutes = parseInt(votingPeriodMinutes, 10)
@@ -24,6 +25,13 @@ function CreateProposalForm({ onSuccess }: Props) {
                 return
             }
             value = BigInt(minutes * 60) // Convert minutes to seconds
+        } else if (actionType === "UPDATE_MIN_TOKENS" && minTokens) {
+            const tokens = parseFloat(minTokens)
+            if (isNaN(tokens) || tokens <= 0) {
+                alert("Please enter a valid minimum token amount")
+                return
+            }
+            value = BigInt(Math.floor(tokens))
         }
 
         await createProposal({
@@ -53,14 +61,17 @@ function CreateProposalForm({ onSuccess }: Props) {
                 value={actionType}
                 onChange={(e) => {
                     setActionType(e.target.value as TProposalAction)
-                    // Reset voting period when changing action type
+                    // Reset form fields when changing action type
                     if (e.target.value !== "UPDATE_VOTING_PERIOD") {
                         setVotingPeriodMinutes("")
+                    }
+                    if (e.target.value !== "UPDATE_MIN_TOKENS") {
+                        setMinTokens("")
                     }
                 }}
             >
                 <option value="NOOP">Discussion proposal</option>
-                <option value="UPDATE_MIN_TOKENS" disabled>Update min tokens</option>
+                <option value="UPDATE_MIN_TOKENS">Update min tokens</option>
                 <option value="UPDATE_VOTING_PERIOD">Update voting period</option>
                 <option value="MINT_TOKENS" disabled>Mint tokens</option>
                 <option value="CUSTOM_CALLDATA" disabled>Custom calldata</option>
@@ -77,11 +88,24 @@ function CreateProposalForm({ onSuccess }: Props) {
                 />
             )}
 
+            {actionType === "UPDATE_MIN_TOKENS" && (
+                <input
+                    type="number"
+                    value={minTokens}
+                    onChange={(e) => setMinTokens(e.target.value)}
+                    placeholder="Minimum tokens to create proposal"
+                    min="100"
+                    step="10"
+                    required
+                />
+            )}
+
             <button 
                 type="submit" 
                 disabled={
                     !description || 
-                    (actionType === "UPDATE_VOTING_PERIOD" && !votingPeriodMinutes)
+                    (actionType === "UPDATE_VOTING_PERIOD" && !votingPeriodMinutes) ||
+                    (actionType === "UPDATE_MIN_TOKENS" && !minTokens)
                 }
             >
                 Create
