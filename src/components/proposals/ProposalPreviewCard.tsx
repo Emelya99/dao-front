@@ -2,9 +2,8 @@ import { TProposalPreview } from "@/types/proposal"
 import { Link } from "react-router-dom"
 import { getProposalDetailPath } from "@/constants/routes"
 import { useCountdown } from "@/hooks/useCountdown"
-import { getProposalStatus, formatTimeLeft } from "@/utils/proposalHelpers"
+import { formatTimeLeft } from "@/utils/proposalHelpers"
 import { formatTokenAmount } from "@/utils/formatToken"
-import EtherscanLink from "@/components/ui/EtherscanLink"
 
 type Props = {
   proposal: TProposalPreview
@@ -12,33 +11,67 @@ type Props = {
 
 function ProposalPreviewCard({ proposal }: Props) {
   const timeLeft = useCountdown(proposal.deadline ?? 0)
-  const status = getProposalStatus(proposal.executed, timeLeft.isExpired)
+  
+  const totalVotes = proposal.voteCountFor + proposal.voteCountAgainst
+  const forPercentage = totalVotes > 0 ? (proposal.voteCountFor / totalVotes) * 100 : 0
+  const againstPercentage = totalVotes > 0 ? (proposal.voteCountAgainst / totalVotes) * 100 : 0
+
+  const getStatusClass = () => {
+    if (proposal.executed) return 'status-executed'
+    if (timeLeft.isExpired) return 'status-expired'
+    return 'status-active'
+  }
 
   return (
-    <div className="proposal-card">
-      <h4>Proposal #{proposal.id}</h4>
+    <div className="proposal-card flex-column gap-12">
+      <div className="proposal-header-section flex-between-center gap-4">
+        <h4 className="mb-0">Proposal #{proposal.id}</h4>
+        <span className={`proposal-status ${getStatusClass()}`}>
+          {proposal.executed ? '✓ Executed' : timeLeft.isExpired ? '⏱ Expired' : '● Active'}
+        </span>
+      </div>
       
-      <div className="proposal-fields">
-        <p><strong>Status:</strong> {status}</p>
-        <p><strong>Time Left:</strong> {formatTimeLeft(proposal.deadline, timeLeft)}</p>
-        <p><strong>Description:</strong> {proposal.description}</p>
-        <p><strong>Creator:</strong> {proposal.creator}</p>
-        <p>
-          <strong>Contract:</strong>{" "}
-          <EtherscanLink type="address" value={proposal.proposalContract} />
+      <div className="description-section">
+        <p style={{ 
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          margin: 0
+        }}>
+          {proposal.description}
         </p>
-        <p>
-          <strong>Transaction:</strong>{" "}
-          <EtherscanLink type="tx" value={proposal.transactionHash} />
-        </p>
-        <p><strong>Votes For:</strong> {formatTokenAmount(proposal.voteCountFor)}</p>
-        <p><strong>Votes Against:</strong> {formatTokenAmount(proposal.voteCountAgainst)}</p>
-        <p><strong>Deadline:</strong> {new Date(proposal.deadline * 1000).toLocaleString()}</p>
-        <p><strong>Created:</strong> {new Date(proposal.createdAt).toLocaleString()}</p>
-        <p><strong>Executed:</strong> {proposal.executed ? "Yes" : "No"}</p>
       </div>
 
-      <Link to={getProposalDetailPath(proposal.id)} className="btn">
+      <div className="metadata-grid">
+        <div className="metadata-item">
+          <div className="metadata-label">Time Left</div>
+          <div className="metadata-value">{formatTimeLeft(proposal.deadline, timeLeft)}</div>
+        </div>
+        <div className="metadata-item">
+          <div className="metadata-label">Created</div>
+          <div className="metadata-value">{new Date(proposal.createdAt).toLocaleDateString()}</div>
+        </div>
+      </div>
+
+      <div className="vote-progress-bar">
+        <div className="vote-progress-fill for" style={{ width: `${forPercentage}%` }}></div>
+        <div className="vote-progress-fill against" style={{ width: `${againstPercentage}%`, marginLeft: 'auto' }}></div>
+      </div>
+
+      <div className="votes-grid">
+        <div className="vote-stat-card for">
+          <div className="vote-stat-label">For</div>
+          <div className="vote-stat-value">{formatTokenAmount(proposal.voteCountFor)}</div>
+        </div>
+        <div className="vote-stat-card against">
+          <div className="vote-stat-label">Against</div>
+          <div className="vote-stat-value">{formatTokenAmount(proposal.voteCountAgainst)}</div>
+        </div>
+      </div>
+
+      <Link to={getProposalDetailPath(proposal.id)} className="btn" style={{ marginTop: 'auto' }}>
         View Details →
       </Link>
     </div>

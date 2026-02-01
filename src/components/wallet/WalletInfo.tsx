@@ -11,21 +11,48 @@ const WalletInfo = () => {
 
   return (
     <section>
-      <WalletAvatar address={address} />
-      <p><b>Address:</b> {address}</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+        <WalletAvatar address={address} />
+        <div>
+          <h2 style={{ margin: 0 }}>Wallet Info</h2>
+          <p style={{ margin: '4px 0 0 0', fontSize: '0.875rem' }}>
+            {address.slice(0, 6)}...{address.slice(-4)}
+          </p>
+        </div>
+      </div>
 
       {isWrongNetwork ? (
-        <>
-          <p style={{color: 'red'}}>Wrong Network</p>
+        <div style={{ 
+          padding: '20px',
+          background: 'var(--danger-red-light)',
+          borderRadius: 'var(--radius-md)',
+          borderLeft: '4px solid var(--danger-red)',
+          marginBottom: '16px'
+        }}>
+          <p style={{ color: 'var(--danger-red)', fontWeight: 600, margin: '0 0 12px 0' }}>
+            ⚠️ Wrong Network
+          </p>
           <SwitchToHoodiButton />
-        </>
+        </div>
       ) : (
-        <>
-          <p><b>Native Balance:</b> {balance} {symbol}</p>
-          <p><b>Token Balance:</b> {tokenBalance} {tokenSymbol} </p>
-          <p><b>ChainId:</b> {chainId}</p>
-          <p><b>Network:</b> {chainName}</p>
-        </>
+        <div className="wallet-info-grid">
+          <div className="wallet-info-item">
+            <strong>Native Balance</strong>
+            <span>{balance} {symbol}</span>
+          </div>
+          <div className="wallet-info-item">
+            <strong>Token Balance</strong>
+            <span>{tokenBalance} {tokenSymbol}</span>
+          </div>
+          <div className="wallet-info-item">
+            <strong>Network</strong>
+            <span>{chainName}</span>
+          </div>
+          <div className="wallet-info-item">
+            <strong>Chain ID</strong>
+            <span>{chainId}</span>
+          </div>
+        </div>
       )}
     </section>
   )

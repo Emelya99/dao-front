@@ -8,9 +8,9 @@ function ProposalsSection() {
     const [isOpen, setIsOpen] = useState(false)
 
     return (
-        <section className="proposals-section flex-column gap-8">
-            <div className="flex-between-center">
-                <h2 style={{padding: 0}}>Proposals</h2>
+        <section className="proposals-section flex-column gap-20">
+            <div className="flex-between-center gap-4">
+                <h2 className="mb-0">Proposals</h2>
                 <CreateProposalButton onClick={() => setIsOpen(true)} />
             </div>
 

@@ -7,41 +7,48 @@ type Props = {
 
 function ProposalMetadata({ proposal }: Props) {
   return (
-    <section className="proposal-section">
-      <h3>Metadata</h3>
+    <section>
+      <h3>Details</h3>
       <div className="metadata-grid">
-        <div>
-          <strong>Creator:</strong> {proposal.creator}
+        <div className="metadata-item">
+          <div className="metadata-label">Creator</div>
+          <div className="metadata-value">
+            <EtherscanLink type="address" value={proposal.creator} />
+          </div>
         </div>
-        <div>
-          <strong>Proposal Contract:</strong>{" "}
-          <EtherscanLink type="address" value={proposal.proposalContract} />
+        <div className="metadata-item">
+          <div className="metadata-label">Proposal Contract</div>
+          <div className="metadata-value">
+            <EtherscanLink type="address" value={proposal.proposalContract} />
+          </div>
         </div>
-        <div>
-          <strong>Transaction:</strong>{" "}
-          <EtherscanLink type="tx" value={proposal.transactionHash} />
+        <div className="metadata-item">
+          <div className="metadata-label">Creation TX</div>
+          <div className="metadata-value">
+            <EtherscanLink type="tx" value={proposal.transactionHash} />
+          </div>
         </div>
-        <div>
-          <strong>Created:</strong> {new Date(proposal.createdAt).toLocaleString()}
+        <div className="metadata-item">
+          <div className="metadata-label">Created At</div>
+          <div className="metadata-value">
+            {new Date(proposal.createdAt).toLocaleString()}
+          </div>
         </div>
-        <div>
-          <strong>Deadline:</strong>{" "}
-          {proposal.deadline 
-            ? new Date(proposal.deadline * 1000).toLocaleString()
-            : "Loading..."
-          }
+        <div className="metadata-item">
+          <div className="metadata-label">Deadline</div>
+          <div className="metadata-value">
+            {proposal.deadline 
+              ? new Date(proposal.deadline * 1000).toLocaleString()
+              : "Loading..."
+            }
+          </div>
         </div>
         {proposal.executedAt && (
-          <div>
-            <strong>Executed:</strong> {new Date(proposal.executedAt).toLocaleString()}
-          </div>
-        )}
-        <div>
-          <strong>Start Block:</strong> {proposal.startBlock}
-        </div>
-        {proposal.endBlock && (
-          <div>
-            <strong>End Block:</strong> {proposal.endBlock}
+          <div className="metadata-item">
+            <div className="metadata-label">Executed At</div>
+            <div className="metadata-value">
+              {new Date(proposal.executedAt).toLocaleString()}
+            </div>
           </div>
         )}
       </div>

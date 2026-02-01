@@ -9,9 +9,13 @@ function Header() {
 
     return (
         <header className="header">
-            <div className="flex-between-center">
-                <Link to={ROUTES.HOME} className="logo">DAO LOGO</Link>
-                {isConnected ? <DisconnectButton /> : <ConnectWalletButton />}
+            <div className="app-container">
+                <div className="flex-between-center">
+                    <Link to={ROUTES.HOME} className="logo">
+                        🗳️ Governance DAO
+                    </Link>
+                    {isConnected ? <DisconnectButton /> : <ConnectWalletButton />}
+                </div>
             </div>
         </header>
     )

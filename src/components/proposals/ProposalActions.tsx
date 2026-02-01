@@ -56,67 +56,106 @@ function ProposalActions({ proposal, isExpired }: Props) {
   }, [proposal.executed, proposal.id, hasPendingExecution, confirmExecution])
 
   return (
-    <section className="proposal-section">
+    <section>
       <h3>Actions</h3>
       
-      {/* Hide vote buttons if vote is confirmed or user already voted */}
+      {/* Vote Section */}
       {shouldHideVoteButtons ? (
-        <p className="vote-status-message">
-          You already voted on this proposal
-        </p>
+        <div className="vote-status-message">
+          ✓ You already voted on this proposal
+        </div>
       ) : hasPendingVote(proposal.id) ? (
-        <p className="vote-status-message">
-          Vote submitted, waiting for confirmation...
-        </p>
+        <div className="vote-status-message">
+          ⏳ Vote submitted, waiting for confirmation...
+        </div>
       ) : (
         <>
           {!canVote && voteDisabledReason && (
-            <p className="vote-status-message">{voteDisabledReason}</p>
+            <div className="vote-status-message" style={{ borderLeftColor: 'var(--warning-orange)' }}>
+              ℹ️ {voteDisabledReason}
+            </div>
           )}
           
           <div className="action-buttons">
             <button 
+              className="btn-success"
               disabled={!canVote || checkingVote || isTransactionPending}
               onClick={() => handleVote(true)}
             >
-              {isTransactionPending ? 'Voting...' : checkingVote ? 'Checking...' : 'Vote For'}
+              {isTransactionPending ? (
+                <>
+                  <span className="loading-spinner"></span> Voting...
+                </>
+              ) : checkingVote ? (
+                'Checking...'
+              ) : (
+                '✓ Vote For'
+              )}
             </button>
             <button 
+              className="btn-danger"
               disabled={!canVote || checkingVote || isTransactionPending}
               onClick={() => handleVote(false)}
             >
-              {isTransactionPending ? 'Voting...' : checkingVote ? 'Checking...' : 'Vote Against'}
+              {isTransactionPending ? (
+                <>
+                  <span className="loading-spinner"></span> Voting...
+                </>
+              ) : checkingVote ? (
+                'Checking...'
+              ) : (
+                '✗ Vote Against'
+              )}
             </button>
           </div>
         </>
       )}
       
-      {/* Execute button */}
-      {shouldHideExecuteButton ? (
-        proposal.executed ? (
-          <p className="vote-status-message">
-            Proposal already executed
-          </p>
-        ) : hasPendingExecution(proposal.id) ? (
-          <p className="vote-status-message">
-            Execution submitted, waiting for confirmation...
-          </p>
-        ) : null
-      ) : (
+      {/* Execute Section */}
+      {!shouldHideExecuteButton && (
         <>
           {!canExecute && executeDisabledReason && (
-            <p className="vote-status-message">{executeDisabledReason}</p>
+            <div className="vote-status-message" style={{ 
+              borderLeftColor: 'var(--warning-orange)',
+              marginTop: '20px'
+            }}>
+              ℹ️ {executeDisabledReason}
+            </div>
           )}
           
-          <div className="action-buttons">
+          <div className="action-buttons" style={{ marginTop: '16px' }}>
             <button 
               disabled={!canExecute || checkingExecute || isExecuteTransactionPending}
               onClick={handleExecute}
             >
-              {isExecuteTransactionPending ? 'Executing...' : checkingExecute ? 'Checking...' : 'Execute Proposal'}
+              {isExecuteTransactionPending ? (
+                <>
+                  <span className="loading-spinner"></span> Executing...
+                </>
+              ) : checkingExecute ? (
+                'Checking...'
+              ) : (
+                '⚡ Execute Proposal'
+              )}
             </button>
           </div>
         </>
+      )}
+
+      {proposal.executed && (
+        <div className="vote-status-message" style={{ 
+          borderLeftColor: 'var(--success-green)',
+          background: 'var(--success-green-light)',
+          marginTop: '20px'
+        }}>
+          ✅ Proposal has been executed
+        </div>
+      )}
+
+      {hasPendingExecution(proposal.id) && !proposal.executed && (
+        <div className="vote-status-message" style={{ marginTop: '20px' }}>
+          ⏳ Execution submitted, waiting for confirmation...
+        </div>
       )}
     </section>
   )

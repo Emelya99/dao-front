@@ -7,18 +7,40 @@ function ProposalsList() {
   const proposals = useProposalStore((s) => s.proposals) // Real-time updates
   const loading = useProposalStore((s) => s.loading)
 
-  if (loading) return <p>Loading proposals…</p>
-  if (error) return <p>Error: {error}</p>
-  if (!proposals.length) return <p>No proposals yet</p>
+  if (loading) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state-icon">⏳</div>
+        <p>Loading proposals...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state-icon">⚠️</div>
+        <p style={{ color: 'var(--danger-red)' }}>Error: {error}</p>
+      </div>
+    )
+  }
+
+  if (!proposals.length) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state-icon">📝</div>
+        <h3 style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>No proposals yet</h3>
+        <p>Be the first to create a proposal!</p>
+      </div>
+    )
+  }
 
   return (
-    <ul className="flex-column gap-12">
+    <div className="proposals-list">
       {proposals.map(p => (
-        <li key={p.id}>
-          <ProposalPreviewCard proposal={p}/>
-        </li>
+        <ProposalPreviewCard key={p.id} proposal={p}/>
       ))}
-    </ul>
+    </div>
   )
 }
 

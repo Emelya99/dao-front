@@ -12,45 +12,52 @@ function ProposalVotingStats({ proposal }: Props) {
   const totalVotesFormatted = formatTokenAmount(proposal.voteCountFor + proposal.voteCountAgainst)
   const totalVotes = proposal.voteCountFor + proposal.voteCountAgainst
   const forPercentage = totalVotes > 0 
-    ? Math.round((proposal.voteCountFor / totalVotes) * 100) 
+    ? (proposal.voteCountFor / totalVotes) * 100
     : 0
+  const againstPercentage = 100 - forPercentage
   const quorumReached = forPercentage >= QUORUM_PERCENTAGE
 
   return (
-    <section className="proposal-section">
+    <section className="voting-stats">
       <h3>Voting Results</h3>
       
-      <div className="voting-stats">
-        <div className="vote-counts">
-          <div className="vote-count vote-for">
-            <span className="label">For:</span>
-            <span className="value">{voteCountForFormatted}</span>
-          </div>
-          <div className="vote-count vote-against">
-            <span className="label">Against:</span>
-            <span className="value">{voteCountAgainstFormatted}</span>
-          </div>
-          <div className="vote-count vote-total">
-            <span className="label">Total:</span>
-            <span className="value">{totalVotesFormatted}</span>
+      <div className="votes-grid">
+        <div className="vote-stat-card for">
+          <div className="vote-stat-label">Votes For</div>
+          <div className="vote-stat-value">{voteCountForFormatted}</div>
+          <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            {forPercentage.toFixed(1)}%
           </div>
         </div>
+        <div className="vote-stat-card against">
+          <div className="vote-stat-label">Votes Against</div>
+          <div className="vote-stat-value">{voteCountAgainstFormatted}</div>
+          <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            {againstPercentage.toFixed(1)}%
+          </div>
+        </div>
+        <div className="vote-stat-card">
+          <div className="vote-stat-label">Total Votes</div>
+          <div className="vote-stat-value">{totalVotesFormatted}</div>
+          <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            Quorum: {quorumReached ? '✓ Reached' : '✗ Not reached'}
+          </div>
+        </div>
+      </div>
 
-        <div className="progress-section">
-          <div className="progress-label">
-            <span>For: {forPercentage}%</span>
-            <span>Quorum: {QUORUM_PERCENTAGE}% {quorumReached ? "✅" : "❌"}</span>
-          </div>
-          <div className="progress-bar">
-            <div 
-              className="progress-bar-fill" 
-              style={{ width: `${forPercentage}%` }}
-            />
-            <div 
-              className="progress-bar-quorum" 
-              style={{ left: `${QUORUM_PERCENTAGE}%` }}
-            />
-          </div>
+      <div style={{ marginTop: '16px' }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          marginBottom: '8px',
+          fontSize: '0.875rem',
+          color: 'var(--text-secondary)'
+        }}>
+          <span>For: {forPercentage.toFixed(1)}%</span>
+          <span>Required: {QUORUM_PERCENTAGE}%</span>
+        </div>
+        <div className="vote-progress-bar" style={{ height: '12px' }}>
+          <div className="vote-progress-fill for" style={{ width: `${forPercentage}%` }}></div>
         </div>
       </div>
     </section>

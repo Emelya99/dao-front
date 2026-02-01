@@ -49,33 +49,33 @@ function ProposalDetailPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="proposal-detail">
+      <section className="proposal-detail">
         <p>Loading proposal...</p>
-      </div>
+      </section>
     )
   }
 
   // Error state
   if (error) {
     return (
-      <div className="proposal-detail">
+      <section className="proposal-detail">
         <h2>Error</h2>
         <p>{error}</p>
-      </div>
+      </section>
     )
   }
 
   // Proposal not found state
   if (!proposal) {
     return (
-      <div className="proposal-detail">
+      <section className="proposal-detail">
         <h2>Proposal not found</h2>
-      </div>
+      </section>
     )
   }
 
   return (
-    <div className="proposal-detail">
+    <section className="proposal-detail">
       <ProposalHeader 
         proposalId={proposal.id}
         executed={isExecuted}
@@ -100,7 +100,7 @@ function ProposalDetailPage() {
         loading={resultsLoading}
         error={resultsError}
       />
-    </div>
+    </section>
   )
 }
 

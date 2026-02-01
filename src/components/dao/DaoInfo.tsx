@@ -35,8 +35,13 @@ const DaoInfo = () => {
   if (loadingMinTokens || loadingVotingPeriod) {
     return (
       <section>
-        <h3>DAO Info</h3>
-        <p>Loading...</p>
+        <h2>DAO Parameters</h2>
+        <div className="dao-info-grid">
+          <div className="dao-info-card">
+            <h4>Loading...</h4>
+            <div className="value">-</div>
+          </div>
+        </div>
       </section>
     )
   }
@@ -49,9 +54,17 @@ const DaoInfo = () => {
 
   return (
     <section>
-      <h3>DAO Info</h3>
-      <p><b>Min Tokens to Create Proposal:</b> {minTokensFormatted}</p>
-      <p><b>Voting Period:</b> {votingPeriodMinutes} minutes</p>
+      <h2>DAO Parameters</h2>
+      <div className="dao-info-grid">
+        <div className="dao-info-card">
+          <h4>Min Tokens Required</h4>
+          <div className="value">{minTokensFormatted}</div>
+        </div>
+        <div className="dao-info-card">
+          <h4>Voting Period</h4>
+          <div className="value">{votingPeriodMinutes} min</div>
+        </div>
+      </div>
     </section>
   )
 }
