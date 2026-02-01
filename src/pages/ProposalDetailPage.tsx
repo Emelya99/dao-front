@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useProposalDetail } from '@/hooks/proposals/useProposalDetail'
 import { useProposalResults } from '@/hooks/proposals/useProposalResults'
 import { useVote } from '@/hooks/proposals/useVote'
@@ -30,10 +30,21 @@ function ProposalDetailPage() {
     onVoteConfirmed: confirmVote,
   })
   
+  // Track current time to check if proposal is expired (updates every second)
+  const [currentTime, setCurrentTime] = useState(() => Math.floor(Date.now() / 1000))
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Math.floor(Date.now() / 1000))
+    }, 1000)
+    
+    return () => clearInterval(interval)
+  }, [])
+  
   // Calculate proposal deadline and status
   const deadline = proposal?.deadline ?? null
   const isExecuted = proposal?.executed ?? false
-  const isExpired = deadline ? Math.floor(Date.now() / 1000) >= deadline : false
+  const isExpired = deadline ? currentTime >= deadline : false
 
   // Loading state
   if (loading) {

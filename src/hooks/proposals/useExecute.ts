@@ -1,8 +1,9 @@
 import { useWriteContract, useAccount } from 'wagmi'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { CONTRACTS, getContractInfo } from '@/contracts'
 import { savePendingTx } from '@/helpers/txStorage'
+import { ErrorWithCode } from '@/types/web3'
 
 type ExecuteParams = {
   proposalId: number
@@ -17,7 +18,8 @@ const TOAST = {
 export function useExecute() {
   const { chain } = useAccount()
   const { writeContractAsync, isPending } = useWriteContract()
-  const contractInfo = getContractInfo(CONTRACTS.DAO_CONTRACT)
+  // Memoize contractInfo to avoid recreating on every render
+  const contractInfo = useMemo(() => getContractInfo(CONTRACTS.DAO_CONTRACT), [])
   // Track proposals that have pending execution (waiting for event confirmation)
   const [pendingExecutions, setPendingExecutions] = useState<Set<number>>(new Set())
   // Track proposals that have confirmed execution (event received)
@@ -47,10 +49,11 @@ export function useExecute() {
       toast.success(TOAST.SUBMITTED, { id: toastId })
 
       return txHash
-    } catch (err: any) {
-      console.error('Execute error:', err)
+    } catch (err) {
+      const error = err as ErrorWithCode
+      console.error('Execute error:', error)
       
-      const errorMessage = err?.shortMessage || err?.message || 'Unknown error'
+      const errorMessage = error?.shortMessage || error?.message || 'Unknown error'
       
       if (errorMessage.includes('user rejected') || errorMessage.includes('User rejected')) {
         toast.error('Transaction rejected', { id: toastId })
@@ -70,7 +73,7 @@ export function useExecute() {
       
       throw err
     }
-  }, [writeContractAsync, chain?.id, contractInfo])
+  }, [writeContractAsync, chain, contractInfo, setPendingExecutions])
 
   // Function to mark execution as confirmed (called when event is received)
   const confirmExecution = useCallback((proposalId: number) => {
@@ -80,7 +83,7 @@ export function useExecute() {
       return next
     })
     setConfirmedExecutions(prev => new Set(prev).add(proposalId))
-  }, [])
+  }, [setPendingExecutions, setConfirmedExecutions])
 
   return {
     execute,

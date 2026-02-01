@@ -34,7 +34,7 @@ function ProposalActions({ proposal, isExpired }: Props) {
         proposalId: proposal.id,
         support,
       })
-    } catch (err) {
+    } catch {
       // Error already handled in useVote hook
     }
   }
@@ -43,7 +43,7 @@ function ProposalActions({ proposal, isExpired }: Props) {
     try {
       await execute({ proposalId: proposal.id })
       // confirmExecution will be called when proposal.executed becomes true (via EventListener)
-    } catch (err) {
+    } catch {
       // Error already handled in useExecute hook
     }
   }

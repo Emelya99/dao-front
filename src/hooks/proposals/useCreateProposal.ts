@@ -3,7 +3,7 @@ import toast from "react-hot-toast"
 import { CONTRACT_ADDRESSES, CONTRACT_ABIS, CONTRACTS } from "@/contracts"
 import { TProposalFormState } from "@/types/proposal"
 import { buildExecutionData } from "@/services/proposal/buildExecutionData"
-import { TAddress } from "@/types/web3"
+import { TAddress, ErrorWithCode } from "@/types/web3"
 import { savePendingTx } from "@/helpers/txStorage"
 
 const TOAST = {
@@ -49,8 +49,9 @@ export function useCreateProposal() {
       options?.onSubmitted?.()
 
       return txHash
-    } catch (e: any) {
-      toast.error(e?.shortMessage || TOAST.ERROR, { id: toastId })
+    } catch (e) {
+      const error = e as ErrorWithCode
+      toast.error(error?.shortMessage || TOAST.ERROR, { id: toastId })
       throw e
     }
   }

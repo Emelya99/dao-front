@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchProposalDetail } from '@/services/proposalApi'
 import { useProposalStore } from '@/stores/proposalStore'
+import { ApiError } from '@/types/web3'
 
 export function useProposalDetail(id: number) {
   const { getProposalDetail, setProposalDetail } = useProposalStore()
@@ -23,7 +24,8 @@ export function useProposalDetail(id: number) {
         const detail = await fetchProposalDetail(id)
         setProposalDetail(id, detail)
       } catch (err) {
-        setError((err as any)?.response?.data?.message || 'Failed to load proposal')
+        const error = err as ApiError
+        setError(error?.response?.data?.message || 'Failed to load proposal')
       } finally {
         setLoading(false)
       }

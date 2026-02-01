@@ -4,6 +4,7 @@ import { CONTRACTS, getContractAbi } from '@/contracts'
 import { getTxs, removePendingTx } from '@/helpers/txStorage'
 import { useProposalStore } from '@/stores/proposalStore'
 import { TAddress } from '@/types/web3'
+import { EventLog, VotedArgs } from '@/types/contractEvents'
 
 type Props = {
   proposalContract: TAddress | undefined
@@ -26,9 +27,10 @@ export function useProposalVotedEvent({ proposalContract, proposalId, onVoteConf
     },
     onLogs(logs) {
       for (const log of logs) {
-        const id = (log as any).args?.id
-        const voter = (log as any).args?.voter
-        const support = (log as any).args?.support
+        const args = (log as EventLog).args as VotedArgs
+        const id = args?.id
+        const voter = args?.voter
+        const support = args?.support
         const txHash = log.transactionHash
 
         // Remove from pending txs

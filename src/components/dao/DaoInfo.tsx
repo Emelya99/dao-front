@@ -25,7 +25,7 @@ const DaoInfo = () => {
     address: daoContract.address as TAddress,
     abi: daoContract.abi,
     eventName: 'ProposalExecuted',
-    onLogs: (_logs) => {
+    onLogs: () => {
       // Immediately refetch both values when a proposal is executed
       refetchMinTokens()
       refetchVotingPeriod()

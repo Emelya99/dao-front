@@ -4,6 +4,7 @@ import { fetchNonce, verifySiwe } from '@/services/apiAuth'
 import { SiweMessage } from 'siwe'
 import { useSignMessage, useAccount, useChainId, useDisconnect } from 'wagmi'
 import toast from "react-hot-toast"
+import { ErrorWithCode } from '@/types/web3'
 
 const MESSAGES = {
   NONCE_FAILED: "Failed to fetch SIWE nonce",
@@ -76,8 +77,9 @@ export function useSiweAuth() {
       let signature: string
       try {
         signature = await signMessageAsync({ message: preparedMessage })
-      } catch (err: any) {
-        if (err?.code === 4001) {
+      } catch (err) {
+        const error = err as ErrorWithCode
+        if (error?.code === 4001) {
           toast.error(MESSAGES.SIGN_REJECTED)
           throw new Error(MESSAGES.SIGN_REJECTED)
         }
@@ -96,8 +98,9 @@ export function useSiweAuth() {
       toast.success(MESSAGES.AUTH_SUCCESS)
       setAuthenticated(true)
 
-    } catch (err: any) {
-      const msg = err?.message || MESSAGES.AUTH_FAILED  
+    } catch (err) {
+      const error = err as Error | ErrorWithCode
+      const msg = (error instanceof Error ? error.message : error?.message) || MESSAGES.AUTH_FAILED  
       setError(msg)
       setAuthenticated(false)
       disconnect()
@@ -111,7 +114,11 @@ export function useSiweAuth() {
     isAuthenticated,
     chainId,
     signMessageAsync,
-    disconnect
+    disconnect,
+    reset,
+    setAuthenticated,
+    setError,
+    setLoading,
   ])
 
   // auto SIWE after connect
@@ -119,12 +126,12 @@ export function useSiweAuth() {
     if (isConnected && address && !isAuthenticated && !loading) {
       authenticate()
     }
-  }, [isConnected, address])
+  }, [isConnected, address, isAuthenticated, loading, authenticate])
 
   // reset auth on disconnect
   useEffect(() => {
     if (!isConnected) reset()
-  }, [isConnected])
+  }, [isConnected, reset])
 
   // logout on address change
   useEffect(() => {
@@ -143,7 +150,7 @@ export function useSiweAuth() {
     }
 
     previousAddress.current = address
-  }, [address])
+  }, [address, logout])
 
   return { authenticate }
 }

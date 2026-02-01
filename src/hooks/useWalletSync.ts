@@ -15,47 +15,55 @@ export const useWalletSync = () => {
     token: CONTRACT_ADDRESSES[CONTRACTS.TOKEN_CONTRACT] as TAddress,
   })
 
-  const accountStore = useAccountStore()
-  const tokenStore = useTokenStore()
+  // Use selectors to get only the functions we need (they are stable)
+  const setAddress = useAccountStore((state) => state.setAddress)
+  const resetAccount = useAccountStore((state) => state.reset)
+  const setBalance = useAccountStore((state) => state.setBalance)
+  const setSymbol = useAccountStore((state) => state.setSymbol)
+  const setWrongNetwork = useAccountStore((state) => state.setWrongNetwork)
+  const setChain = useAccountStore((state) => state.setChain)
+
+  const setToken = useTokenStore((state) => state.setToken)
+  const resetToken = useTokenStore((state) => state.reset)
 
   // Account
   useEffect(() => {
     if (!isConnected || !address) {
-      accountStore.reset()
-      tokenStore.reset()
+      resetAccount()
+      resetToken()
       return
     }
-    accountStore.setAddress(address)
-  }, [isConnected, address])
+    setAddress(address)
+  }, [isConnected, address, resetAccount, resetToken, setAddress])
 
   // Native balance
   useEffect(() => {
     if (nativeBalance.data) {
-      accountStore.setBalance(nativeBalance.data.formatted)
-      accountStore.setSymbol(nativeBalance.data.symbol)
+      setBalance(nativeBalance.data.formatted)
+      setSymbol(nativeBalance.data.symbol)
     }
-  }, [nativeBalance.data])
+  }, [nativeBalance.data, setBalance, setSymbol])
 
   // Token balance
   useEffect(() => {
     if (tokenBalance.data) {
-      tokenStore.setToken(
+      setToken(
         tokenBalance.data.formatted, 
         tokenBalance.data.symbol,
         tokenBalance.data.decimals
       )
     }
-  }, [tokenBalance.data])
+  }, [tokenBalance.data, setToken])
 
   // Chain
   useEffect(() => {
     const wrong = !chain || chain.id !== HOODI_CHAIN_ID
-    accountStore.setWrongNetwork(wrong)
+    setWrongNetwork(wrong)
 
     if (chain) {
-      accountStore.setChain(chain.id, chain.name)
+      setChain(chain.id, chain.name)
     } else {
-      accountStore.setChain(0, 'Unknown')
+      setChain(0, 'Unknown')
     }
-  }, [chain])
+  }, [chain, setWrongNetwork, setChain])
 }

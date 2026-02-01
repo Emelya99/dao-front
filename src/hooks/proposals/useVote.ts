@@ -2,7 +2,7 @@ import { useWriteContract, useAccount } from 'wagmi'
 import { useState, useCallback } from 'react'
 import toast from 'react-hot-toast'
 import { CONTRACTS, getContractAbi } from '@/contracts'
-import { TAddress } from '@/types/web3'
+import { TAddress, ErrorWithCode } from '@/types/web3'
 import { savePendingTx } from '@/helpers/txStorage'
 
 type VoteParams = {
@@ -49,10 +49,11 @@ export function useVote() {
       toast.success(TOAST.SUBMITTED, { id: toastId })
 
       return txHash
-    } catch (err: any) {
-      console.error('Vote error:', err)
+    } catch (err) {
+      const error = err as ErrorWithCode
+      console.error('Vote error:', error)
       
-      const errorMessage = err?.shortMessage || err?.message || 'Unknown error'
+      const errorMessage = error?.shortMessage || error?.message || 'Unknown error'
       
       if (errorMessage.includes('user rejected') || errorMessage.includes('User rejected')) {
         toast.error('Transaction rejected', { id: toastId })
@@ -68,7 +69,7 @@ export function useVote() {
       
       throw err
     }
-  }, [writeContractAsync, chain?.id])
+  }, [writeContractAsync, chain, setPendingVotes])
 
   // Function to mark vote as confirmed (called when event is received)
   const confirmVote = useCallback((proposalId: number) => {
@@ -78,7 +79,7 @@ export function useVote() {
       return next
     })
     setConfirmedVotes(prev => new Set(prev).add(proposalId))
-  }, [])
+  }, [setPendingVotes, setConfirmedVotes])
 
   return {
     vote,

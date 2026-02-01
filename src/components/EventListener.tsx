@@ -4,6 +4,7 @@ import { CONTRACTS, getContractInfo, getContractAbi } from "@/contracts"
 import { getTxs, removePendingTx } from "@/helpers/txStorage"
 import { useProposalStore } from "@/stores/proposalStore"
 import { TAddress } from "@/types/web3"
+import { EventLog, ProposalCreatedArgs, ProposalExecutedArgs } from "@/types/contractEvents"
 
 const events = {
   ProposalCreated: "ProposalCreated",
@@ -33,10 +34,11 @@ export function EventListener() {
     },
     onLogs(logs) {
       for (const log of logs) {
-        const id = (log as any).args?.id 
-        const creator = (log as any).args?.creator
-        const description = (log as any).args?.description
-        const proposalAddress = (log as any).args?.proposalAddress
+        const args = (log as EventLog).args as ProposalCreatedArgs
+        const id = args?.id 
+        const creator = args?.creator
+        const description = args?.description
+        const proposalAddress = args?.proposalAddress
         const txHash = log.transactionHash
 
         if (txHash) {
@@ -95,8 +97,9 @@ export function EventListener() {
     },
     onLogs(logs) {
       for (const log of logs) {
-        const id = (log as any).args?.id
-        const executor = (log as any).args?.executor
+        const args = (log as EventLog).args as ProposalExecutedArgs
+        const id = args?.id
+        const executor = args?.executor
         const txHash = log.transactionHash
 
         if (txHash) {
