@@ -58,6 +58,7 @@ function ProposalVotingStats({ proposal }: Props) {
         </div>
         <div className="vote-progress-bar" style={{ height: '12px' }}>
           <div className="vote-progress-fill for" style={{ width: `${forPercentage}%` }}></div>
+          <div className="vote-progress-fill against" style={{ width: `${againstPercentage}%`, marginLeft: 'auto' }}></div>
         </div>
       </div>
     </section>

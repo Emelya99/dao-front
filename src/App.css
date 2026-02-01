@@ -974,6 +974,17 @@ textarea {
   .wallet-banner-content button {
     width: 100%;
   }
+
+  .pagination {
+    gap: 8px;
+  }
+
+  .pagination-page {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    font-size: 0.875rem;
+  }
 }
 
 /* Votes List */
@@ -1209,6 +1220,58 @@ textarea {
 .wallet-banner-content button {
   font-size: 0.875rem;
   padding: 10px 20px;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 32px;
+}
+
+.pagination-pages {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pagination-page {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  background: var(--card-bg);
+  color: var(--foreground);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-page:hover {
+  background: var(--bg-blue-light);
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+}
+
+.pagination-page.active {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+  color: white;
+  border-color: var(--primary-blue);
+  box-shadow: var(--shadow-sm);
+}
+
+.pagination-ellipsis {
+  color: var(--text-muted);
+  padding: 0 4px;
+  font-weight: 500;
 }
 
 /* Scrollbar */
