@@ -28,6 +28,12 @@ a {
   text-decoration: none;
 }
 
+ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
@@ -39,15 +45,14 @@ section {
   border-radius: 8px;
   padding: 16px;
   background-color: #f9f9f9;
-  margin: 10px;
-  width: 90%;
+  margin: 10px auto;
   text-align: left;
 }
 
 .app-container {
-  align-items: center;
-  justify-items: center;
-  text-align: center;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 button {
@@ -60,7 +65,6 @@ button {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  /*margin: 15px; !* Space between buttons *!*/
 }
 
 button:hover {
@@ -82,7 +86,7 @@ button:disabled {
 }
 
 h1 {
-  margin: 20px;
+  margin: 0 0 20px;
 }
 
 h2 {
@@ -121,7 +125,11 @@ pre {
 
 /* Header styles */
 .header {
-  padding: 10px;
+  padding: 16px 0;
+}
+.logo {
+  font-size: 24px;
+  font-weight: 700;
 }
 
 /* Dialog modal styles for proposal creation */
@@ -140,6 +148,8 @@ pre {
   box-shadow: 0 4px 32px rgba(0,0,0,0.10);
   padding: 16px;
   margin: 10px;
+  max-width: 420px;
+  width: 100%;
 }
 
 .proposal-modal-error {
@@ -156,7 +166,9 @@ input[type="text"],
 input[type="number"],
 input[type="password"],
 input[type="email"],
-textarea {
+textarea,
+select {
+  margin: 0 !important;
   padding: 10px 15px;
   background-color: white;
   color: black;
@@ -173,8 +185,29 @@ input[type="text"]:focus,
 input[type="number"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   border-color: #333;
   outline: none;
   box-shadow: 0 0 0 2px #e0e0e0;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+.flex-between-center {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+} 
+
+.gap-16 {
+  gap: 16px;
+}
+.gap-12 {
+  gap: 12px;
+}
+.gap-8 {
+  gap: 8px;
 }
