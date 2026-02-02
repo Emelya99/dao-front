@@ -5,11 +5,16 @@ import { hoodi } from './customNetworks'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { queryClient, projectId, metadata } from './constants'
+import { createStorage } from 'wagmi'
 
 const wagmiAdapter = new WagmiAdapter({
   networks: [hoodi],
   projectId,
-  ssr: false
+  ssr: false,
+  // @ts-expect-error - WagmiAdapter types don't include storage option, but it works at runtime
+  storage: createStorage({
+    storage: window.sessionStorage, // Use sessionStorage instead of localStorage
+  }),
 })
 
 createAppKit({

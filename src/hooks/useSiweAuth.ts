@@ -121,7 +121,7 @@ export function useSiweAuth() {
     setLoading,
   ])
 
-  // auto SIWE after connect
+  // Auto SIWE after connect
   useEffect(() => {
     if (isConnected && address && !isAuthenticated && !loading) {
       authenticate()
