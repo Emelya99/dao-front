@@ -15,6 +15,7 @@ export interface VotedArgs {
   id?: bigint
   voter?: string
   support?: boolean
+  amount?: bigint
 }
 
 // Base interface for event logs

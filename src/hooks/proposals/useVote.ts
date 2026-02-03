@@ -1,9 +1,10 @@
 import { useWriteContract, useAccount } from 'wagmi'
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import toast from 'react-hot-toast'
 import { CONTRACTS, getContractAbi } from '@/contracts'
 import { TAddress, ErrorWithCode } from '@/types/web3'
 import { savePendingTx } from '@/helpers/txStorage'
+import { useProposalStore } from '@/stores/proposalStore'
 
 type VoteParams = {
   proposalContract: TAddress
@@ -20,10 +21,11 @@ const TOAST = {
 export function useVote() {
   const { chain } = useAccount()
   const { writeContractAsync, isPending } = useWriteContract()
-  // Track proposals that have pending votes (waiting for event confirmation)
-  const [pendingVotes, setPendingVotes] = useState<Set<number>>(new Set())
-  // Track proposals that have confirmed votes (event received)
-  const [confirmedVotes, setConfirmedVotes] = useState<Set<number>>(new Set())
+  
+  // Use GLOBAL store so all components see the same state
+  const addPendingVote = useProposalStore((s) => s.addPendingVote)
+  const removePendingVote = useProposalStore((s) => s.removePendingVote)
+  const addConfirmedVote = useProposalStore((s) => s.addConfirmedVote)
 
   const vote = useCallback(async ({ proposalContract, proposalId, support }: VoteParams): Promise<string> => {
     const toastId = toast.loading(TOAST.SIGN)
@@ -43,8 +45,8 @@ export function useVote() {
         timestamp: Date.now(),
       })
 
-      // Mark this proposal as having a pending vote
-      setPendingVotes(prev => new Set(prev).add(proposalId))
+      // Mark this proposal as having a pending vote in GLOBAL store
+      addPendingVote(proposalId)
 
       toast.success(TOAST.SUBMITTED, { id: toastId })
 
@@ -69,24 +71,18 @@ export function useVote() {
       
       throw err
     }
-  }, [writeContractAsync, chain, setPendingVotes])
+  }, [writeContractAsync, chain, addPendingVote])
 
   // Function to mark vote as confirmed (called when event is received)
   const confirmVote = useCallback((proposalId: number) => {
-    setPendingVotes(prev => {
-      const next = new Set(prev)
-      next.delete(proposalId)
-      return next
-    })
-    setConfirmedVotes(prev => new Set(prev).add(proposalId))
-  }, [setPendingVotes, setConfirmedVotes])
+    removePendingVote(proposalId)
+    addConfirmedVote(proposalId)
+  }, [removePendingVote, addConfirmedVote])
 
   return {
     vote,
     isPending,
     isVoting: isPending,
-    hasPendingVote: (proposalId: number) => pendingVotes.has(proposalId),
-    hasConfirmedVote: (proposalId: number) => confirmedVotes.has(proposalId),
     confirmVote,
   }
 }

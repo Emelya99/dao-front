@@ -4,11 +4,11 @@ import { useProposalStore } from '@/stores/proposalStore'
 import { ApiError } from '@/types/web3'
 
 export function useProposalDetail(id: number) {
-  const { getProposalDetail, setProposalDetail } = useProposalStore()
+  const setProposalDetail = useProposalStore((state) => state.setProposalDetail)
+  // Subscribe to changes in store - component will re-render when data updates
+  const cachedDetail = useProposalStore((state) => state.detailCache[id])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const cachedDetail = getProposalDetail(id)
 
   useEffect(() => {
     // If already cached, skip fetch

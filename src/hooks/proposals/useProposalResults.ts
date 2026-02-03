@@ -3,11 +3,11 @@ import { fetchProposalResults } from '@/services/proposalApi'
 import { useProposalStore } from '@/stores/proposalStore'
 
 export function useProposalResults(id: number) {
-  const { getProposalResults, setProposalResults } = useProposalStore()
+  const setProposalResults = useProposalStore((state) => state.setProposalResults)
+  // Subscribe to changes in store - component will re-render when cache changes
+  const cachedResults = useProposalStore((state) => state.resultsCache[id])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const cachedResults = getProposalResults(id)
 
   useEffect(() => {
     // If already cached, skip fetch

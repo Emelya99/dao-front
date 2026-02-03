@@ -1,9 +1,10 @@
 import { useParams } from 'react-router-dom'
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, memo } from 'react'
 import { useProposalDetail } from '@/hooks/proposals/useProposalDetail'
 import { useProposalResults } from '@/hooks/proposals/useProposalResults'
 import { useVote } from '@/hooks/proposals/useVote'
 import { useProposalVotedEvent } from '@/hooks/proposals/useProposalVotedEvent'
+import { useCountdown } from '@/hooks/useCountdown'
 import ProposalHeader from '@/components/proposals/ProposalHeader'
 import ProposalCountdown from '@/components/proposals/ProposalCountdown'
 import ProposalDescription from '@/components/proposals/ProposalDescription'
@@ -11,6 +12,27 @@ import ProposalMetadata from '@/components/proposals/ProposalMetadata'
 import ProposalVotingStats from '@/components/proposals/ProposalVotingStats'
 import ProposalActions from '@/components/proposals/ProposalActions'
 import ProposalVotesList from '@/components/proposals/ProposalVotesList'
+import { TAddress } from '@/types/web3'
+
+// Memoized wrapper to prevent re-renders from parent affecting event listener
+const ProposalEventListener = memo(({ 
+  proposalContract, 
+  proposalId, 
+  confirmVote 
+}: { 
+  proposalContract: TAddress | undefined
+  proposalId: number
+  confirmVote: (id: number) => void
+}) => {
+  useProposalVotedEvent({
+    proposalContract,
+    proposalId,
+    onVoteConfirmed: confirmVote,
+  })
+  return null
+})
+
+ProposalEventListener.displayName = 'ProposalEventListener'
 
 function ProposalDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -23,28 +45,10 @@ function ProposalDetailPage() {
   // Memoize proposalContract to prevent event listener from restarting on every render
   const proposalContract = useMemo(() => proposal?.proposalContract, [proposal?.proposalContract])
   
-  // Listen to Voted events for this proposal
-  useProposalVotedEvent({
-    proposalContract,
-    proposalId,
-    onVoteConfirmed: confirmVote,
-  })
-  
-  // Track current time to check if proposal is expired (updates every second)
-  const [currentTime, setCurrentTime] = useState(() => Math.floor(Date.now() / 1000))
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(Math.floor(Date.now() / 1000))
-    }, 1000)
-    
-    return () => clearInterval(interval)
-  }, [])
-  
-  // Calculate proposal deadline and status
-  const deadline = proposal?.deadline ?? null
+  // Calculate proposal status (without causing re-renders)
+  const deadline = proposal?.deadline ?? 0
   const isExecuted = proposal?.executed ?? false
-  const isExpired = deadline ? currentTime >= deadline : false
+  const { isExpired } = useCountdown(deadline)
 
   // Loading state
   if (loading) {
@@ -75,32 +79,41 @@ function ProposalDetailPage() {
   }
 
   return (
-    <section className="proposal-detail">
-      <ProposalHeader 
-        proposalId={proposal.id}
-        executed={isExecuted}
-        isExpired={isExpired}
+    <>
+      {/* Event listener isolated in memoized component */}
+      <ProposalEventListener 
+        proposalContract={proposalContract}
+        proposalId={proposalId}
+        confirmVote={confirmVote}
       />
+      
+      <section className="proposal-detail">
+        <ProposalHeader 
+          proposalId={proposal.id}
+          executed={isExecuted}
+          isExpired={isExpired}
+        />
 
-      <ProposalCountdown deadline={proposal.deadline} />
+        <ProposalCountdown deadline={proposal.deadline} />
 
-      <ProposalDescription description={proposal.description} />
+        <ProposalDescription description={proposal.description} />
 
-      <ProposalMetadata proposal={proposal} />
+        <ProposalMetadata proposal={proposal} />
 
-      <ProposalVotingStats proposal={proposal} />
+        <ProposalVotingStats proposal={proposal} />
 
-      <ProposalActions 
-        proposal={proposal}
-        isExpired={isExpired}
-      />
+        <ProposalActions 
+          proposal={proposal}
+          isExpired={isExpired}
+        />
 
-      <ProposalVotesList 
-        votes={results?.votes || []}
-        loading={resultsLoading}
-        error={resultsError}
-      />
-    </section>
+        <ProposalVotesList 
+          votes={results?.votes || []}
+          loading={resultsLoading}
+          error={resultsError}
+        />
+      </section>
+    </>
   )
 }
 

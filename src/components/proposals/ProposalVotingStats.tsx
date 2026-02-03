@@ -14,7 +14,9 @@ function ProposalVotingStats({ proposal }: Props) {
   const forPercentage = totalVotes > 0 
     ? (proposal.voteCountFor / totalVotes) * 100
     : 0
-  const againstPercentage = 100 - forPercentage
+  const againstPercentage = totalVotes > 0
+    ? (proposal.voteCountAgainst / totalVotes) * 100
+    : 0
   const quorumReached = forPercentage >= QUORUM_PERCENTAGE
 
   return (
@@ -56,9 +58,9 @@ function ProposalVotingStats({ proposal }: Props) {
           <span>For: {forPercentage.toFixed(1)}%</span>
           <span>Required: {QUORUM_PERCENTAGE}%</span>
         </div>
-        <div className="vote-progress-bar" style={{ height: '12px' }}>
+        <div className="vote-progress-bar" style={{ height: '12px', display: 'flex' }}>
           <div className="vote-progress-fill for" style={{ width: `${forPercentage}%` }}></div>
-          <div className="vote-progress-fill against" style={{ width: `${againstPercentage}%`, marginLeft: 'auto' }}></div>
+          <div className="vote-progress-fill against" style={{ width: `${againstPercentage}%` }}></div>
         </div>
       </div>
     </section>

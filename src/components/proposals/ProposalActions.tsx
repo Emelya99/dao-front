@@ -4,6 +4,7 @@ import { useVote } from '@/hooks/proposals/useVote'
 import { useCanExecute } from '@/hooks/proposals/useCanExecute'
 import { useExecute } from '@/hooks/proposals/useExecute'
 import { TProposalDetail } from '@/types/proposal'
+import { useProposalStore } from '@/stores/proposalStore'
 
 type Props = {
   proposal: TProposalDetail
@@ -11,7 +12,12 @@ type Props = {
 }
 
 function ProposalActions({ proposal, isExpired }: Props) {
-  const { vote, isPending, isVoting, hasPendingVote, hasConfirmedVote } = useVote()
+  const { vote, isPending, isVoting } = useVote()
+  
+  // Subscribe to GLOBAL vote state from store
+  const pendingVotes = useProposalStore((s) => s.pendingVotes)
+  const confirmedVotes = useProposalStore((s) => s.confirmedVotes)
+  
   const { execute, isPending: isExecutePending, isExecuting, hasPendingExecution, hasConfirmedExecution, confirmExecution } = useExecute()
   const { canVote, reason: voteDisabledReason, loading: checkingVote } = useCanVote(proposal, {
     days: 0,
@@ -22,8 +28,10 @@ function ProposalActions({ proposal, isExpired }: Props) {
   })
   const { canExecute, reason: executeDisabledReason, loading: checkingExecute } = useCanExecute(proposal, isExpired)
 
-  const isTransactionPending = isPending || isVoting || hasPendingVote(proposal.id)
-  const shouldHideVoteButtons = hasConfirmedVote(proposal.id) || voteDisabledReason === 'You already voted'
+  const hasPendingVote = pendingVotes.has(proposal.id)
+  const hasConfirmedVote = confirmedVotes.has(proposal.id)
+  const isTransactionPending = isPending || isVoting || hasPendingVote
+  const shouldHideVoteButtons = hasConfirmedVote || voteDisabledReason === 'You already voted'
   const isExecuteTransactionPending = isExecutePending || isExecuting || hasPendingExecution(proposal.id)
   const shouldHideExecuteButton = hasConfirmedExecution(proposal.id) || proposal.executed || !canExecute
 
@@ -64,7 +72,7 @@ function ProposalActions({ proposal, isExpired }: Props) {
         <div className="vote-status-message">
           ✓ You already voted on this proposal
         </div>
-      ) : hasPendingVote(proposal.id) ? (
+      ) : hasPendingVote ? (
         <div className="vote-status-message">
           ⏳ Vote submitted, waiting for confirmation...
         </div>

@@ -10,6 +10,10 @@ type ProposalState = {
   detailCache: Record<number, TProposalDetail>
   resultsCache: Record<number, TProposalResults>
   
+  // Vote tracking (global state shared across components)
+  pendingVotes: Set<number>
+  confirmedVotes: Set<number>
+  
   // Methods for list
   setProposals: (proposals: TProposalPreview[]) => void
   setLoading: (loading: boolean) => void
@@ -21,6 +25,11 @@ type ProposalState = {
   setProposalResults: (id: number, results: TProposalResults) => void
   getProposalDetail: (id: number) => TProposalDetail | undefined
   getProposalResults: (id: number) => TProposalResults | undefined
+  
+  // Methods for vote tracking
+  addPendingVote: (id: number) => void
+  removePendingVote: (id: number) => void
+  addConfirmedVote: (id: number) => void
 }
 
 export const useProposalStore = create<ProposalState>((set, get) => ({
@@ -28,6 +37,8 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
   loading: false,
   detailCache: {},
   resultsCache: {},
+  pendingVotes: new Set(),
+  confirmedVotes: new Set(),
 
   setProposals: (proposals) => set({ proposals }),
   setLoading: (loading) => set({ loading }),
@@ -69,4 +80,18 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
   getProposalDetail: (id) => get().detailCache[id],
   
   getProposalResults: (id) => get().resultsCache[id],
+  
+  addPendingVote: (id) => set((state) => ({
+    pendingVotes: new Set(state.pendingVotes).add(id)
+  })),
+  
+  removePendingVote: (id) => set((state) => {
+    const next = new Set(state.pendingVotes)
+    next.delete(id)
+    return { pendingVotes: next }
+  }),
+  
+  addConfirmedVote: (id) => set((state) => ({
+    confirmedVotes: new Set(state.confirmedVotes).add(id)
+  })),
 }))
