@@ -5,6 +5,7 @@ export type TProposalAction =
   | "UPDATE_MIN_TOKENS"
   | "UPDATE_VOTING_PERIOD"
   | "MINT_TOKENS"
+  | "BURN_TOKENS"
   | "CUSTOM_CALLDATA"
 
 export type TProposalExecutionData = {

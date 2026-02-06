@@ -51,6 +51,17 @@ export function buildExecutionData(
         }),
       }
 
+    case "BURN_TOKENS":
+      return {
+        target: CONTRACT_ADDRESSES[CONTRACTS.TOKEN_CONTRACT] as TAddress,
+        value: 0n,
+        calldata: encodeFunctionData({
+          abi: CONTRACT_ABIS[CONTRACTS.TOKEN_CONTRACT],
+          functionName: "burn",
+          args: [form.params.value],
+        }),
+      }
+
     case "CUSTOM_CALLDATA":
       return form.params
 
