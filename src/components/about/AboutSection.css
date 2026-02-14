@@ -1,0 +1,90 @@
+.about-section {
+  margin-top: 2rem;
+}
+
+.about-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.about-intro {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.about-repos h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: var(--foreground);
+}
+
+.repo-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.repo-links li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: var(--bg-blue-light);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--primary-blue);
+}
+
+.repo-links strong {
+  color: var(--foreground);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.repo-links .link {
+  color: var(--primary-blue);
+  text-decoration: none;
+  font-size: 0.9rem;
+  word-break: break-all;
+  transition: var(--transition);
+}
+
+.repo-links .link:hover {
+  color: var(--primary-blue-hover);
+  text-decoration: underline;
+}
+
+.about-note {
+  background: var(--warning-orange-light);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--warning-orange);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--foreground);
+}
+
+.about-note strong {
+  color: var(--warning-orange);
+}
+
+@media (max-width: 768px) {
+  .about-section {
+    margin-top: 1.5rem;
+  }
+
+  .about-content {
+    gap: 1.25rem;
+  }
+
+  .repo-links li {
+    padding: 0.625rem;
+  }
+}
+
